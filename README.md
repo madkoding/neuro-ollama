@@ -104,11 +104,13 @@ Esta tabla muestra los modelos más populares disponibles en Ollama y sus capaci
 
 | Tarea | Modelo Recomendado | VRAM | Tools |
 |-------|-------------------|------|---------|
-| **Desarrollo general** | `qwen2.5:3b` | ~2 GB | ✅ |
+| **Desarrollo general** | `qwen3:8b` | ~5 GB | ✅ |
+| Modelo ligero/rápido | `qwen3:0.6b` | ~500 MB | ✅ |
 | Código especializado | `deepseek-coder:6.7b` | ~4 GB | ❌ |
 | RAG / Embeddings | `nomic-embed-text` | ~500 MB | N/A |
 
-> 💡 `qwen2.5:3b` es el modelo recomendado: ligero, sigue bien las instrucciones y soporta tools.
+> 💡 `qwen3:8b` es el modelo principal: optimizado para código, sigue bien las instrucciones y soporta tools.
+> 💡 `qwen3:0.6b` para respuestas rápidas con menor consumo de recursos.
 
 ### Instalación de Modelos
 

@@ -17,7 +17,8 @@ services:
   # ===========================================================================
   # Provides local AI inference capabilities with GPU acceleration.
   # Models:
-  #   - qwen2.5:3b: Chat, código, tool calling (~2GB VRAM)
+  #   - qwen3:8b: Modelo de código optimizado (~5GB VRAM)
+  #   - qwen3:0.6b: Modelo ligero y rápido (~500MB VRAM)
   #   - nomic-embed-text: Embeddings para búsqueda semántica (~500MB)
   # ===========================================================================
   ollama:
@@ -64,7 +65,7 @@ services:
   # Model Preloader - Keeps models warm in VRAM
   # ===========================================================================
   # Automatically loads specified models into GPU memory on startup.
-  # Models: qwen2.5:3b, nomic-embed-text
+  # Models: qwen3:8b, qwen3:0.6b, nomic-embed-text
   # ===========================================================================
   preloader:
     image: curlimages/curl:latest
@@ -115,7 +116,8 @@ services:
         }
         
         # Preload models
-        preload "qwen2.5:3b"
+        preload "qwen3:8b"
+        preload "qwen3:0.6b"
         preload_embed "nomic-embed-text:latest"
         
         echo ""
