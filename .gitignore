@@ -1,0 +1,18 @@
+# Docker
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+.claude/
+*.swp
+*.swo
+
+# Backup files
+*.bak
+*.backup
+.aider*

@@ -1,0 +1,149 @@
+# =============================================================================
+# NEURO-OLLAMA - Independent Ollama Service
+# =============================================================================
+# Standalone Ollama LLM inference server with GPU support.
+# This service should be started BEFORE neuro-os services.
+#
+# Usage:
+#   docker compose up -d        # Start Ollama
+#   ./setup.sh                  # Download required models
+#   docker compose logs -f      # View logs
+#   docker compose down         # Stop Ollama
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # Ollama - Local LLM Inference Server
+  # ===========================================================================
+  # Provides local AI inference capabilities with GPU acceleration.
+  # Models:
+  #   - qwen2.5:3b: Chat, código, tool calling (~2GB VRAM)
+  #   - nomic-embed-text: Embeddings para búsqueda semántica (~500MB)
+  # ===========================================================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: neuro-ollama
+    restart: unless-stopped
+    environment:
+      # Keep model loaded indefinitely to avoid 30+ second reload times
+      - OLLAMA_KEEP_ALIVE=-1
+      # Context length for conversations (32k needed for tool calling with opencode)
+      - OLLAMA_CONTEXT_LENGTH=32768
+      # Default number of context tokens (required for tool calling)
+      - OLLAMA_NUM_CTX=32768
+      # Allow connections from any host (needed for Docker networking)
+      - OLLAMA_HOST=0.0.0.0
+      # Limit CPU threads (models are on GPU, less CPU = less heat)
+      - OLLAMA_NUM_THREADS=4
+    volumes:
+      # Persistent storage for downloaded models (~5-20GB depending on models)
+      - ollama_data:/root/.ollama
+    ports:
+      # Expose on all interfaces for access from neuro-os containers
+      - "11434:11434"
+    networks:
+      - ollama-network
+    # GPU support (requires nvidia-container-toolkit)
+    # Comment out runtime and deploy sections if running on CPU only
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 60s
+
+  # ===========================================================================
+  # Model Preloader - Keeps models warm in VRAM
+  # ===========================================================================
+  # Automatically loads specified models into GPU memory on startup.
+  # Models: qwen2.5:3b, nomic-embed-text
+  # ===========================================================================
+  preloader:
+    image: curlimages/curl:latest
+    container_name: neuro-ollama-preloader
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - ollama-network
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "🚀 Starting model preloader..."
+        
+        # Check if a model exists
+        model_exists() {
+          curl -s "$$OLLAMA_URL/api/tags" | grep -q "\"name\":\"$$1\""
+        }
+        
+        # Function to preload a model
+        preload() {
+          model=$$1
+          if ! model_exists "$$model"; then
+            echo "⏭️  Skipping $$model (not downloaded yet - run setup.sh first)"
+            return 0
+          fi
+          echo "📦 Loading $$model into VRAM..."
+          curl -s -X POST "$$OLLAMA_URL/api/generate" \
+            -H "Content-Type: application/json" \
+            -d "{\"model\": \"$$model\", \"prompt\": \"hi\", \"keep_alive\": -1, \"options\": {\"num_predict\": 1}}" > /dev/null
+          echo "✅ $$model loaded (keep_alive: forever)"
+        }
+        
+        # Function to preload embedding model
+        preload_embed() {
+          model=$$1
+          if ! model_exists "$$model"; then
+            echo "⏭️  Skipping $$model (not downloaded yet - run setup.sh first)"
+            return 0
+          fi
+          echo "📦 Loading embedding $$model into VRAM..."
+          curl -s -X POST "$$OLLAMA_URL/api/embeddings" \
+            -H "Content-Type: application/json" \
+            -d "{\"model\": \"$$model\", \"prompt\": \"test\", \"keep_alive\": -1}" > /dev/null
+          echo "✅ $$model loaded (keep_alive: forever)"
+        }
+        
+        # Preload models
+        preload "qwen2.5:3b"
+        preload_embed "nomic-embed-text:latest"
+        
+        echo ""
+        echo "════════════════════════════════════════"
+        echo "✨ Preloader finished!"
+        echo "════════════════════════════════════════"
+        echo "📊 Current VRAM status:"
+        curl -s "$$OLLAMA_URL/api/ps" | grep -o '"name":"[^"]*"' | cut -d'"' -f4 | while read m; do
+          echo "  • $$m"
+        done
+        echo ""
+        echo "💡 If models were skipped, run ./setup.sh first."
+    restart: "no"
+
+# =============================================================================
+# Networks Configuration
+# =============================================================================
+networks:
+  ollama-network:
+    driver: bridge
+    name: neuro-ollama-network
+
+# =============================================================================
+# Volumes Configuration
+# =============================================================================
+# Uses same volume name as neuro-os for compatibility
+# This allows sharing models if both were used previously
+volumes:
+  ollama_data:
+    name: neuro-ollama-data
+    external: true
