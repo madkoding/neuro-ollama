@@ -17,8 +17,7 @@ services:
   # ===========================================================================
   # Provides local AI inference capabilities with GPU acceleration.
   # Models:
-  #   - qwen3:8b: Modelo de código optimizado (~5GB VRAM)
-  #   - qwen3:0.6b: Modelo ligero y rápido (~500MB VRAM)
+  #   - glm4:9b-chat-q8_0: Modelo principal con tools (~9GB VRAM)
   #   - nomic-embed-text: Embeddings para búsqueda semántica (~500MB)
   # ===========================================================================
   ollama:
@@ -55,7 +54,7 @@ services:
               count: all
               capabilities: [gpu]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 30s
       retries: 5
@@ -97,7 +96,7 @@ services:
           echo "📦 Loading $$model into VRAM..."
           curl -s -X POST "$$OLLAMA_URL/api/generate" \
             -H "Content-Type: application/json" \
-            -d "{\"model\": \"$$model\", \"prompt\": \"hi\", \"keep_alive\": -1, \"options\": {\"num_predict\": 1}}" > /dev/null
+            -d "{\"model\": \"$$model\", \"prompt\": \"hi\", \"keep_alive\": -1, \"options\": {\"num_predict\": 1}}"
           echo "✅ $$model loaded (keep_alive: forever)"
         }
         
@@ -111,13 +110,12 @@ services:
           echo "📦 Loading embedding $$model into VRAM..."
           curl -s -X POST "$$OLLAMA_URL/api/embeddings" \
             -H "Content-Type: application/json" \
-            -d "{\"model\": \"$$model\", \"prompt\": \"test\", \"keep_alive\": -1}" > /dev/null
+            -d "{\"model\": \"$$model\", \"prompt\": \"test\", \"keep_alive\": -1}"
           echo "✅ $$model loaded (keep_alive: forever)"
         }
         
         # Preload models
         preload "qwen3:8b"
-        preload "qwen3:0.6b"
         preload_embed "nomic-embed-text:latest"
         
         echo ""
@@ -131,6 +129,10 @@ services:
         echo ""
         echo "💡 If models were skipped, run ./setup.sh first."
     restart: "no"
+
+
+
+
 
 # =============================================================================
 # Networks Configuration

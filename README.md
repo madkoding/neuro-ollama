@@ -34,8 +34,7 @@ curl http://localhost:11434/api/tags
 
 | Modelo | VRAM | Uso |
 |--------|------|-----|
-| `qwen3:8b` | ~5 GB | Modelo de código optimizado |
-| `qwen3:0.6b` | ~500 MB | Modelo ligero y rápido |
+| `glm4:9b-chat-q8_0` | ~9 GB | Modelo principal con tools |
 | `nomic-embed-text` | ~500 MB | Búsqueda semántica |
 
 ### Guía de Modelos Gratuitos de Ollama
@@ -67,7 +66,7 @@ Esta tabla muestra los modelos más populares disponibles en Ollama y sus capaci
 | `llama3.1:8b` | 8B | ~5 GB | ✅ | ❌ | ⭐⭐⭐⭐ | ⭐⭐⭐ | Meta, muy capaz |
 | `gemma2:9b` | 9B | ~6 GB | ❌ | ❌ | ⭐⭐⭐ | ⭐⭐⭐ | Google, preciso |
 | `qwen2.5:7b` | 7B | ~5 GB | ✅ | ❌ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Excelente en español |
-| `ministral-3:8b` | 8B | ~6 GB | ✅ | ✅ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | **✅ Recomendado Standard** |
+| `ministral-3:8b` | 8B | ~6 GB | ✅ | ✅ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Con visión |
 | `deepseek-coder:6.7b` | 6.7B | ~4 GB | ❌ | ❌ | ⭐⭐⭐⭐⭐ | ⭐⭐ | Código (sin tools) |
 
 #### Modelos Grandes (8-16 GB VRAM)
@@ -75,6 +74,7 @@ Esta tabla muestra los modelos más populares disponibles en Ollama y sus capaci
 | Modelo | Params | VRAM | 🛠️ Tools | 👁️ Visión | 💻 Código | 🌐 Español | Notas |
 |--------|--------|------|----------|-----------|-----------|------------|-------|
 | `qwen2.5:14b` | 14B | ~9 GB | ✅ | ❌ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Muy capaz |
+| `glm4:9b-chat-q8_0` | 9B | ~9 GB | ✅ | ❌ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | **✅ Recomendado - GLM-4 Q8** |
 | `llama3.1:70b-q4` | 70B | ~40 GB | ✅ | ❌ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Necesita mucha VRAM |
 | `codellama:13b` | 13B | ~8 GB | ❌ | ❌ | ⭐⭐⭐⭐⭐ | ⭐⭐ | Solo código |
 | `mixtral:8x7b` | 47B | ~26 GB | ✅ | ❌ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | MoE (mucha VRAM) |
@@ -103,16 +103,15 @@ Esta tabla muestra los modelos más populares disponibles en Ollama y sus capaci
 #### ¿Qué modelo elegir?
 
 | Tarea | Modelo Recomendado | VRAM | Tools |
-|-------|-------------------|------|---------|
-| **Desarrollo general** | `qwen3:8b` | ~5 GB | ✅ |
-| Modelo ligero/rápido | `qwen3:0.6b` | ~500 MB | ✅ |
+|-------|-------------------|------|---------|  
+| **Desarrollo general** | `glm4:9b-chat-q8_0` | ~9 GB | ✅ |
+| Modelo alternativo | `qwen2.5:7b` | ~5 GB | ✅ |
+| Modelo ligero/rápido | `qwen2.5:3b` | ~2 GB | ✅ |
 | Código especializado | `deepseek-coder:6.7b` | ~4 GB | ❌ |
 | RAG / Embeddings | `nomic-embed-text` | ~500 MB | N/A |
 
-> 💡 `qwen3:8b` es el modelo principal: optimizado para código, sigue bien las instrucciones y soporta tools.
-> 💡 `qwen3:0.6b` para respuestas rápidas con menor consumo de recursos.
-
-### Instalación de Modelos
+> 💡 `glm4:9b-chat-q8_0` es el modelo principal: GLM-4 cuantizado Q8 con excelente rendimiento en código y razonamiento.
+> 💡 `qwen2.5:7b` como alternativa con excelente soporte en español.### Instalación de Modelos
 
 ```bash
 # Instalar modelos requeridos

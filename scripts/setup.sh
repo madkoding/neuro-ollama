@@ -5,8 +5,7 @@
 # Downloads required models for NEURO-OS ecosystem.
 #
 # Models:
-#   - qwen3:8b: Modelo de código (~5GB VRAM)
-#   - qwen3:0.6b: Modelo ligero rápido (~500MB VRAM)
+#   - glm4:9b-chat-q8_0: Modelo principal con tools (~9GB VRAM)
 #   - nomic-embed-text: Embeddings para búsqueda semántica (~500MB)
 #
 # Usage:
@@ -144,8 +143,7 @@ main() {
     echo -e "${CYAN}════════════════════════════════════════════════════════════════${NC}"
     
     # Models
-    pull_model "qwen3:8b" "Modelo de código"
-    pull_model "qwen3:0.6b" "Modelo ligero rápido"
+    pull_model "hf.co/unsloth/Mistral-Large-3-675B-Instruct-2512-GGUF:IQ1_M" "Mistral-Large-3 model"
     pull_model "nomic-embed-text" "Embeddings for semantic search"
     
     show_models
@@ -155,8 +153,7 @@ main() {
     echo -e "${CYAN}Preloading models into VRAM...${NC}"
     echo -e "${CYAN}════════════════════════════════════════════════════════════════${NC}"
     
-    preload_into_vram "qwen3:8b" "Main model"
-    preload_into_vram "qwen3:0.6b" "Light model"
+    preload_into_vram "hf.co/unsloth/Mistral-Large-3-675B-Instruct-2512-GGUF:IQ1_M" "Mistral-Large-3 model"
     preload_embedding "nomic-embed-text:latest"
     
     show_vram_status
