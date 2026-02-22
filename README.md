@@ -271,4 +271,4 @@ sudo systemctl restart docker
 MIT License - Ver archivo LICENSE para detalles.
 
 <!-- AUTO-UPDATE-DATE -->
-**Última actualización:** 2026-02-22 12:07:13 -03
+**Última actualización:** 2026-02-22 13:06:59 -03
